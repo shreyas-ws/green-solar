@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Panel Quote Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .result h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Solar Panel System Quote Calculator</h1>
+
+        <div class="form-group">
+            <label>Select System Type:</label>
+            <div class="radio-group" data-selector="systemType">
+                <label><input type="radio" name="systemType" value="on-grid" data-price="0"> On-grid</label>
+                <label><input type="radio" name="systemType" value="off-grid" data-price="0"> Off-grid</label>
+                <label><input type="radio" name="systemType" value="hybrid" data-price="0"> Hybrid</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Select Panel Provider:</label>
+            <div class="radio-group" data-selector="panelProvider">
+                <label><input type="radio" name="panelProvider" value="Tata Power" data-price="50000"> Tata
+                    Power</label>
+                <label><input type="radio" name="panelProvider" value="Vikram Solar" data-price="45000"> Vikram
+                    Solar</label>
+                <label><input type="radio" name="panelProvider" value="Waaree" data-price="55000"> Waaree</label>
+                <label><input type="radio" name="panelProvider" value="RenewSys" data-price="60000"> RenewSys</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Select Battery Provider:</label>
+            <div class="radio-group" data-selector="batteryProvider">
+                <label><input type="radio" name="batteryProvider" value="Luminous" data-price="12000"> Luminous</label>
+                <label><input type="radio" name="batteryProvider" value="Exide" data-price="10000"> Exide</label>
+                <label><input type="radio" name="batteryProvider" value="Okaya" data-price="15000"> Okaya</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Select Inverter Provider:</label>
+            <div class="radio-group" data-selector="inverterProvider">
+                <label><input type="radio" name="inverterProvider" value="Microtek" data-price="15000"> Microtek</label>
+                <label><input type="radio" name="inverterProvider" value="Sukam" data-price="20000"> Sukam</label>
+                <label><input type="radio" name="inverterProvider" value="Delta" data-price="25000"> Delta</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="monthlyBill">Monthly Electricity Bill (₹):</label>
+            <input type="number" data-selector="monthlyBill" min="0">
+        </div>
+
+        <div class="result" style="display: none;">
+            <h2>Quote Summary</h2>
+            <p data-selector="totalCost"></p>
+        </div>
+    </div>
+
+    <script>
+        function calculateQuote() {
+            // Get input values
+            const systemType = document.querySelector('[data-selector="systemType"] input:checked');
+            const panelProvider = document.querySelector('[data-selector="panelProvider"] input:checked');
+            const batteryProvider = document.querySelector('[data-selector="batteryProvider"] input:checked');
+            const inverterProvider = document.querySelector('[data-selector="inverterProvider"] input:checked');
+            const monthlyBill = parseFloat(document.querySelector('[data-selector="monthlyBill"]').value);
+
+            // Check if the monthly bill is a number
+            if (isNaN(monthlyBill) || monthlyBill <= 0) {
+                document.querySelector('.result').style.display = 'none';
+                return;
+            }
+
+            // Get provider prices
+            const panelPricePerKW = parseFloat(panelProvider.dataset.price);
+            const batteryPricePerKWh = parseFloat(batteryProvider.dataset.price);
+            const inverterPrice = parseFloat(inverterProvider.dataset.price);
+
+            // Calculate system requirements
+            const perKwhCost = 10; // Example cost per kWh
+            const dailySunlightHours = 4;
+            const totalKWRequired = (monthlyBill / perKwhCost) / (30 * dailySunlightHours);
+            const totalCostOfPanels = totalKWRequired * panelPricePerKW;
+
+            // Example fixed battery storage for hybrid system
+            const batteryStorageRequired = systemType.value === 'hybrid' ? totalKWRequired : 0;
+            const totalCostOfBatteries = batteryStorageRequired * batteryPricePerKWh;
+
+            const totalCost = totalCostOfPanels + totalCostOfBatteries + inverterPrice;
+
+            // Display results
+            document.querySelector('[data-selector="totalCost"]').textContent = `Total Cost: ₹${totalCost.toFixed(2)}`;
+            document.querySelector('.result').style.display = 'block';
+        }
+
+        // Add event listeners to radio buttons and input field
+        document.querySelectorAll('[data-selector="systemType"] input').forEach(input =>
+            input.addEventListener('change', calculateQuote)
+        );
+        document.querySelectorAll('[data-selector="panelProvider"] input').forEach(input =>
+            input.addEventListener('change', calculateQuote)
+        );
+        document.querySelectorAll('[data-selector="batteryProvider"] input').forEach(input =>
+            input.addEventListener('change', calculateQuote)
+        );
+        document.querySelectorAll('[data-selector="inverterProvider"] input').forEach(input =>
+            input.addEventListener('change', calculateQuote)
+        );
+        document.querySelector('[data-selector="monthlyBill"]').addEventListener('input', calculateQuote);
+    </script>
+</body>
+
+</html>

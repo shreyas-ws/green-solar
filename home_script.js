@@ -317,3 +317,55 @@ document.addEventListener('DOMContentLoaded', function() {
 // Testimonials Swiper END
 
 
+//Calculator START
+function calculateQuote() {
+  // Get input values
+  const systemType = document.querySelector('[data-selector="systemType"] input:checked');
+  const panelProvider = document.querySelector('[data-selector="panelProvider"] input:checked');
+  const batteryProvider = document.querySelector('[data-selector="batteryProvider"] input:checked');
+  const inverterProvider = document.querySelector('[data-selector="inverterProvider"] input:checked');
+  const monthlyBill = parseFloat(document.querySelector('[data-selector="monthlyBill"]').value);
+
+  // Check if the monthly bill is a number
+  if (isNaN(monthlyBill) || monthlyBill <= 0) {
+      document.querySelector('.result').style.display = 'none';
+      return;
+  }
+
+  // Get provider prices
+  const panelPricePerKW = parseFloat(panelProvider.dataset.price);
+  const batteryPricePerKWh = parseFloat(batteryProvider.dataset.price);
+  const inverterPrice = parseFloat(inverterProvider.dataset.price);
+
+  // Calculate system requirements
+  const perKwhCost = 10; // Example cost per kWh
+  const dailySunlightHours = 4;
+  const totalKWRequired = (monthlyBill / perKwhCost) / (30 * dailySunlightHours);
+  const totalCostOfPanels = totalKWRequired * panelPricePerKW;
+  
+  // Example fixed battery storage for hybrid system
+  const batteryStorageRequired = systemType.value === 'hybrid' ? totalKWRequired : 0;
+  const totalCostOfBatteries = batteryStorageRequired * batteryPricePerKWh;
+  
+  const totalCost = totalCostOfPanels + totalCostOfBatteries + inverterPrice;
+
+  // Display results
+  document.querySelector('[data-selector="totalCost"]').textContent = `Total Cost: ₹${totalCost.toFixed(2)}`;
+  document.querySelector('.result').style.display = 'block';
+}
+
+// Add event listeners to radio buttons and input field
+document.querySelectorAll('[data-selector="systemType"] input').forEach(input =>
+  input.addEventListener('change', calculateQuote)
+);
+document.querySelectorAll('[data-selector="panelProvider"] input').forEach(input =>
+  input.addEventListener('change', calculateQuote)
+);
+document.querySelectorAll('[data-selector="batteryProvider"] input').forEach(input =>
+  input.addEventListener('change', calculateQuote)
+);
+document.querySelectorAll('[data-selector="inverterProvider"] input').forEach(input =>
+  input.addEventListener('change', calculateQuote)
+);
+document.querySelector('[data-selector="monthlyBill"]').addEventListener('input', calculateQuote);
+//Calculator END
