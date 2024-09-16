@@ -1,43 +1,6 @@
-//Navbar BG to White START
-// Function to check scroll percentage
-function getScrollPercentage() {
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const windowHeight = document.documentElement.scrollHeight - window.innerHeight;
-    return (scrollTop / windowHeight) * 100;
-}
 
-// Variables to store the current state of the classes
-let isDarkClassPresent = true; // Assuming the 'is-dark' class is present initially
-let isDarkTransparentClassPresent = true; // Assuming the 'is-dark-transparent' class is present initially
-
-window.addEventListener('scroll', function() {
-    const scrollPercentage = getScrollPercentage();
-    const navbar = document.querySelector('.navbar_component');
-
-    // Handle 'is-dark' class
-    if (scrollPercentage > 2 && isDarkClassPresent) {
-        navbar.classList.remove('is-dark');
-        isDarkClassPresent = false;
-    } else if (scrollPercentage <= 2 && !isDarkClassPresent) {
-        navbar.classList.add('is-dark');
-        isDarkClassPresent = true;
-    }
-
-    // Handle 'is-dark-transparent' class
-    if (scrollPercentage > 2 && isDarkTransparentClassPresent) {
-        navbar.classList.remove('is-dark-transparent');
-        isDarkTransparentClassPresent = false;
-    } else if (scrollPercentage <= 2 && !isDarkTransparentClassPresent) {
-        navbar.classList.add('is-dark-transparent');
-        isDarkTransparentClassPresent = true;
-    }
-});
-
-//Navbar BG to White END
-
-// GSAP Animations START
+// Home Logo Marquee START
 document.addEventListener("DOMContentLoaded", (event) => {
-  // logo marquee START
   // Function to duplicate the marquee content for infinite scroll
   function duplicateMarqueeContent() {
     const marqueeContainer = document.querySelector(".marquee-container");
@@ -56,108 +19,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const marqueeWidth = document.querySelector(".marquee-container").offsetWidth;
 
   marqueeAnimation.to(".marquee-container", { x: -marqueeWidth });
-  // logo marquee END
   
 });
+// Home Logo Marquee END
 
-// GSAP Animations END
 
-// Testimonials Swiper START
-// Initialize Swiper and set it as a global variable
-let testimonialsSwiper;
-
-// Custom function to update the progress bar
-function updateProgressBar() {
-  if (testimonialsSwiper && testimonialsSwiper.slides && testimonialsSwiper.slides.length > 0) {
-    const totalSlides = testimonialsSwiper.slides.length;
-    const activeIndex = testimonialsSwiper.activeIndex;
-    const slidesPerView = testimonialsSwiper.params.slidesPerView;
-    
-    // Calculate progress based on the last visible slide
-    const lastVisibleSlideIndex = Math.min(activeIndex + slidesPerView, totalSlides);
-    const progress = lastVisibleSlideIndex / totalSlides;
-    
-    const progressBar = document.querySelector('.swiper-progress-bar');
-    if (progressBar) {
-      progressBar.style.width = (progress * 100) + '%';
-    } else {
-      console.error('Progress bar element not found');
-    }
-  } else {
-    console.error('Swiper is not fully initialized or no slides are available');
-  }
-}
-
-// Function to initialize Swiper
-function initSwiper() {
-  testimonialsSwiper = new Swiper('.swiper', {
-    // Enable accessibility
-    a11y: true,
-    keyboard: {
-      enabled: true,
-      onlyInViewport: false
-    },
-    
-    // Ensure progress bar updates after Swiper initializes
-    on: {
-      init: function () {
-        // Delay the initial update to ensure slides are rendered
-        setTimeout(updateProgressBar, 0);
-      },
-      slideChange: updateProgressBar,
-      resize: updateProgressBar
-    },
-    // Swiper options
-    spaceBetween: 30,
-    centeredSlides: false,
-    freeMode: false,
-    // Breakpoints for responsiveness
-    breakpoints: {
-      1200: {
-        slidesPerView: 3.25,
-        spaceBetween: 30,
-      },
-      991: {
-        slidesPerView: 2.5,
-        spaceBetween: 20,
-        freeMode: true,
-        freeModeMomentumRatio: 0.5,
-        centeredSlides: false,
-        slideToClickedSlide: false
-      },
-      767: {
-        slidesPerView: 1.75,
-        spaceBetween: 15,
-        freeMode: true,
-        freeModeMomentumRatio: 0.5,
-        centeredSlides: false,
-        slideToClickedSlide: false
-      },
-      478: {
-        slidesPerView: 1.25,
-        spaceBetween: 10,
-        freeMode: true,
-        freeModeMomentumRatio: 0.5,
-        centeredSlides: false,
-        slideToClickedSlide: false
-      }
-    }
-  });
-}
-
-// Ensure DOM is fully loaded before initializing Swiper
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize Swiper
-  initSwiper();
-  
-  // Add a small delay to update progress bar after initialization
-  setTimeout(updateProgressBar, 100);
-  
-  // Update progress bar when all images are loaded
-  window.addEventListener('load', updateProgressBar);
-});
-// Testimonials Swiper END
-
+// Home Tabs Animate and IX START
 document.addEventListener('DOMContentLoaded', function() {
     const breakpoint = 767;
 
@@ -350,29 +217,103 @@ activateTab(0);
     // Run on window resize
     window.addEventListener('resize', handleResize);
 });
+// Home Tabs Animate and IX END
 
-// Hero Section Interaction START
-// Function to handle mouse move
-        function handleMouseMove(event) {
-            const section = document.getElementsByClassName('section_home-hero');
-            const rect = section.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
-            const width = rect.width;
-            const height = rect.height;
-            const moveDistance = 0.02; // 2%
 
-            // Calculate positions
-            const xPercent = (mouseX / width - 0.5) * moveDistance;
-            const yPercent = (mouseY / height - 0.5) * moveDistance;
+// Testimonials Swiper START
+// Initialize Swiper and set it as a global variable
+let testimonialsSwiper;
 
-            // GSAP animations
-            gsap.to('.home-hero_image1', { x: -xPercent * width, y: -yPercent * height, duration: 0.3 });
-            gsap.to('.home-hero_image2', { x: xPercent * width, y: -yPercent * height, duration: 0.3 });
-            gsap.to('.home-hero_image3', { x: -xPercent * width, y: yPercent * height, duration: 0.3 });
-            gsap.to('.home-hero_image4', { x: xPercent * width, y: yPercent * height, duration: 0.3 });
-        }
+// Custom function to update the progress bar
+function updateProgressBar() {
+  if (testimonialsSwiper && testimonialsSwiper.slides && testimonialsSwiper.slides.length > 0) {
+    const totalSlides = testimonialsSwiper.slides.length;
+    const activeIndex = testimonialsSwiper.activeIndex;
+    const slidesPerView = testimonialsSwiper.params.slidesPerView;
+    
+    // Calculate progress based on the last visible slide
+    const lastVisibleSlideIndex = Math.min(activeIndex + slidesPerView, totalSlides);
+    const progress = lastVisibleSlideIndex / totalSlides;
+    
+    const progressBar = document.querySelector('.swiper-progress-bar');
+    if (progressBar) {
+      progressBar.style.width = (progress * 100) + '%';
+    } else {
+      console.error('Progress bar element not found');
+    }
+  } else {
+    console.error('Swiper is not fully initialized or no slides are available');
+  }
+}
 
-        // Add event listener
-        document.getElementsByClassName('section_home-hero').addEventListener('mousemove', handleMouseMove);
-// Hero Section Interaction END
+// Function to initialize Swiper
+function initSwiper() {
+  testimonialsSwiper = new Swiper('.swiper', {
+    // Enable accessibility
+    a11y: true,
+    keyboard: {
+      enabled: true,
+      onlyInViewport: false
+    },
+    
+    // Ensure progress bar updates after Swiper initializes
+    on: {
+      init: function () {
+        // Delay the initial update to ensure slides are rendered
+        setTimeout(updateProgressBar, 0);
+      },
+      slideChange: updateProgressBar,
+      resize: updateProgressBar
+    },
+    // Swiper options
+    spaceBetween: 30,
+    centeredSlides: false,
+    freeMode: false,
+    // Breakpoints for responsiveness
+    breakpoints: {
+      1200: {
+        slidesPerView: 3.25,
+        spaceBetween: 30,
+      },
+      991: {
+        slidesPerView: 2.5,
+        spaceBetween: 20,
+        freeMode: true,
+        freeModeMomentumRatio: 0.5,
+        centeredSlides: false,
+        slideToClickedSlide: false
+      },
+      767: {
+        slidesPerView: 1.75,
+        spaceBetween: 15,
+        freeMode: true,
+        freeModeMomentumRatio: 0.5,
+        centeredSlides: false,
+        slideToClickedSlide: false
+      },
+      478: {
+        slidesPerView: 1.25,
+        spaceBetween: 10,
+        freeMode: true,
+        freeModeMomentumRatio: 0.5,
+        centeredSlides: false,
+        slideToClickedSlide: false
+      }
+    }
+  });
+}
+
+// Ensure DOM is fully loaded before initializing Swiper
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize Swiper
+  initSwiper();
+  
+  // Add a small delay to update progress bar after initialization
+  setTimeout(updateProgressBar, 100);
+  
+  // Update progress bar when all images are loaded
+  window.addEventListener('load', updateProgressBar);
+});
+// Testimonials Swiper END
+
+
