@@ -57,20 +57,25 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 //GSAP Fade Slide Bottom START
-// Select elements by attribute
-const fadeSlideBottomElements = document.querySelectorAll('[data-animate="fade-slide-bottom"]');
+// Register the ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
-// Apply GSAP animation to each element with a stagger effect
-gsap.from(fadeSlideBottomElements, {
-  y: 100,             // Slide up from 100px below
-  opacity: 0,         // Start fully transparent
-  duration: 1,        // Animation duration of 1 second
-  ease: "power3.out", // Easing function for smooth movement
-  stagger: 0.3,       // Delay between each element’s animation (0.3 seconds)
-  scrollTrigger: {
-    trigger: fadeSlideBottomElements, // Trigger the animation when the first element comes into view
-    start: "top 80%",  // Adjust based on when the animation should start
-    toggleActions: "play none none reverse" // Play once when scrolled in, reverse on scroll out
-  }
+// Select elements by attribute
+const fadeSlideBottomElements = document.querySelectorAll('[gsap-animate="fade-slide-bottom"]');
+
+// Apply GSAP animation to each element individually
+fadeSlideBottomElements.forEach(element => {
+  gsap.from(element, {
+    y: 100,             // Slide up from 100px below
+    opacity: 0,         // Start fully transparent
+    duration: 1,        // Animation duration of 1 second
+    ease: "power3.out", // Easing function for smooth movement
+    scrollTrigger: {
+      trigger: element,      // Each element triggers its own animation
+      start: "top 80%",      // Animation starts when the element's top reaches 80% of the viewport height
+      end: "bottom 20%",     // End animation when the element's bottom reaches 20% of the viewport height
+      toggleActions: "play none none reverse" // Play animation on scroll into view, reverse on scroll out
+    }
+  });
 });
 //GSAP Fade Slide Bottom END
