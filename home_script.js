@@ -318,54 +318,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 //Calculator START
-function calculateQuote() {
-  // Get input values
-  const systemType = document.querySelector('[data-selector="systemType"] input:checked');
-  const panelProvider = document.querySelector('[data-selector="panelProvider"] input:checked');
-  const batteryProvider = document.querySelector('[data-selector="batteryProvider"] input:checked');
-  const inverterProvider = document.querySelector('[data-selector="inverterProvider"] input:checked');
-  const monthlyBill = parseFloat(document.querySelector('[data-selector="monthlyBill"]').value);
+document.addEventListener('DOMContentLoaded', function() {
+    const calculator = {
+        elements: {
+            monthlyBill: document.getElementById('monthlyBill'),
+            systemType: document.querySelectorAll('input[name="systemType"]'),
+            panelProvider: document.querySelectorAll('input[name="panelProvider"]'),
+            batteryProvider: document.querySelectorAll('input[name="batteryProvider"]'),
+            inverterProvider: document.querySelectorAll('input[name="inverterProvider"]'),
+            itemizedCostsDisplay: document.querySelector('.itemized_costs'), // New section for itemized costs
+            resultDisplay: document.querySelector('.calculator_results div:last-child')
+        },
+        constants: {
+            perKwhCost: 10,
+            dailySunlightHours: 4,
+            daysInMonth: 30,
+            batteryEfficiency: 0.8 // Assuming 80% efficiency for batteries
+        },
+        init: function() {
+            this.attachEventListeners();
+            console.log('Calculator initialized');
+        },
+        attachEventListeners: function() {
+            this.elements.monthlyBill.addEventListener('input', () => {
+                this.elements.monthlyBill.value = this.filterNumbers(this.elements.monthlyBill.value);
+                this.elements.monthlyBill.value = this.formatWithIndianCommas(this.elements.monthlyBill.value);
+                this.calculate();
+            });
+            ['systemType', 'panelProvider', 'batteryProvider', 'inverterProvider'].forEach(type => {
+                this.elements[type].forEach(input => {
+                    input.addEventListener('change', () => this.calculate());
+                });
+            });
+        },
+        getSelectedValue: function(name) {
+            const selected = document.querySelector(`input[name="${name}"]:checked`);
+            return selected ? { value: selected.value, price: parseFloat(selected.dataset.price) } : null;
+        },
+        calculate: function() {
+            const monthlyBill = parseFloat(this.elements.monthlyBill.value.replace(/,/g, ''));
+            const systemType = this.getSelectedValue('systemType');
+            const panelProvider = this.getSelectedValue('panelProvider');
+            const batteryProvider = this.getSelectedValue('batteryProvider');
+            const inverterProvider = this.getSelectedValue('inverterProvider');
 
-  // Check if the monthly bill is a number
-  if (isNaN(monthlyBill) || monthlyBill <= 0) {
-      document.querySelector('.result').style.display = 'none';
-      return;
-  }
+            if (!monthlyBill || !systemType || !panelProvider || !batteryProvider || !inverterProvider) {
+                this.displayResult('Please fill in all fields');
+                return;
+            }
 
-  // Get provider prices
-  const panelPricePerKW = parseFloat(panelProvider.dataset.price);
-  const batteryPricePerKWh = parseFloat(batteryProvider.dataset.price);
-  const inverterPrice = parseFloat(inverterProvider.dataset.price);
+            console.log('Inputs:', { monthlyBill, systemType, panelProvider, batteryProvider, inverterProvider });
 
-  // Calculate system requirements
-  const perKwhCost = 10; // Example cost per kWh
-  const dailySunlightHours = 4;
-  const totalKWRequired = (monthlyBill / perKwhCost) / (30 * dailySunlightHours);
-  const totalCostOfPanels = totalKWRequired * panelPricePerKW;
-  
-  // Example fixed battery storage for hybrid system
-  const batteryStorageRequired = systemType.value === 'hybrid' ? totalKWRequired : 0;
-  const totalCostOfBatteries = batteryStorageRequired * batteryPricePerKWh;
-  
-  const totalCost = totalCostOfPanels + totalCostOfBatteries + inverterPrice;
+            const dailyEnergyUsage = (monthlyBill / this.constants.perKwhCost) / this.constants.daysInMonth;
+            const totalKWRequired = dailyEnergyUsage / this.constants.dailySunlightHours;
+            const totalCostOfPanels = totalKWRequired * panelProvider.price;
 
-  // Display results
-  document.querySelector('[data-selector="totalCost"]').textContent = `Total Cost: ₹${totalCost.toFixed(2)}`;
-  document.querySelector('.result').style.display = 'block';
-}
+            let batteryStorageRequired = dailyEnergyUsage; // Always calculate battery storage
+            if (systemType.value === 'off-grid' || systemType.value === 'hybrid') {
+                batteryStorageRequired = dailyEnergyUsage / this.constants.batteryEfficiency;
+            }
+            const totalCostOfBatteries = batteryStorageRequired * batteryProvider.price;
 
-// Add event listeners to radio buttons and input field
-document.querySelectorAll('[data-selector="systemType"] input').forEach(input =>
-  input.addEventListener('change', calculateQuote)
-);
-document.querySelectorAll('[data-selector="panelProvider"] input').forEach(input =>
-  input.addEventListener('change', calculateQuote)
-);
-document.querySelectorAll('[data-selector="batteryProvider"] input').forEach(input =>
-  input.addEventListener('change', calculateQuote)
-);
-document.querySelectorAll('[data-selector="inverterProvider"] input').forEach(input =>
-  input.addEventListener('change', calculateQuote)
-);
-document.querySelector('[data-selector="monthlyBill"]').addEventListener('input', calculateQuote);
+            const totalCost = totalCostOfPanels + totalCostOfBatteries + inverterProvider.price;
+
+            console.log('Calculation details:', {
+                dailyEnergyUsage,
+                totalKWRequired,
+                totalCostOfPanels,
+                batteryStorageRequired,
+                totalCostOfBatteries,
+                inverterCost: inverterProvider.price,
+                totalCost
+            });
+
+            // Display individual costs
+            this.displayItemizedCosts(totalCostOfPanels, totalCostOfBatteries, inverterProvider.price);
+
+            // Display total cost
+            this.displayResult(`Total Cost: ₹${this.formatWithIndianCommas(totalCost.toFixed(2))}`);
+        },
+        displayItemizedCosts: function(panelCost, batteryCost, inverterCost) {
+            if (this.elements.itemizedCostsDisplay) {
+                this.elements.itemizedCostsDisplay.innerHTML = `
+                    <p>Panel Cost: ₹${this.formatWithIndianCommas(panelCost.toFixed(2))}</p>
+                    <p>Battery Cost: ₹${this.formatWithIndianCommas(batteryCost.toFixed(2))}</p>
+                    <p>Inverter Cost: ₹${this.formatWithIndianCommas(inverterCost.toFixed(2))}</p>
+                `;
+            } else {
+                console.warn('Itemized costs display element not found');
+            }
+        },
+        displayResult: function(message) {
+            if (this.elements.resultDisplay) {
+                this.elements.resultDisplay.textContent = message;
+            } else {
+                console.warn('Result display element not found');
+                const resultElement = document.createElement('div');
+                resultElement.textContent = message;
+                document.querySelector('.calculator_results').appendChild(resultElement);
+            }
+            console.log('Displayed result:', message);
+        },
+        formatWithIndianCommas: function(value) {
+            const parts = value.toString().split(".");
+            let integerPart = parts[0];
+            let decimalPart = parts.length > 1 ? `.${parts[1]}` : "";
+
+            // Apply Indian numbering format for the integer part
+            const lastThreeDigits = integerPart.slice(-3);
+            const otherDigits = integerPart.slice(0, -3);
+
+            if (otherDigits !== "") {
+                integerPart = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," + lastThreeDigits;
+            }
+
+            return integerPart + decimalPart;
+        },
+        filterNumbers: function(value) {
+            return value.replace(/[^0-9]/g, ''); // Allows only numbers
+        }
+    };
+
+    calculator.init();
+});
+
 //Calculator END
