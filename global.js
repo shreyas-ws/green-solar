@@ -35,26 +35,32 @@ window.addEventListener('scroll', function() {
 
 //Navbar BG to White END
 
+//Select Input Color Change START
 document.addEventListener("DOMContentLoaded", function() {
+    // Select the input element
     const selectInput = document.querySelector(".is-select-input");
 
-    // Function to update the color based on the selected option
-    function updateSelectColor() {
-        if (selectInput.value === "") {
-            // Apply custom color var(--content--secondary) when the default option is selected
-            selectInput.style.color = "var(--content--secondary)";
-        } else {
-            // Reset color to inherit for other options
-            selectInput.style.color = "inherit";
+    // Check if the element exists before proceeding
+    if (selectInput) {
+        // Function to update the color based on the selected option
+        function updateSelectColor() {
+            if (selectInput.value === "") {
+                // Apply custom color var(--content--secondary) when the default option is selected
+                selectInput.style.color = "var(--content--secondary)";
+            } else {
+                // Reset color to inherit for other options
+                selectInput.style.color = "inherit";
+            }
         }
+
+        // Initial color update when the page loads
+        updateSelectColor();
+
+        // Update color when the selection changes
+        selectInput.addEventListener("change", updateSelectColor);
     }
-
-    // Initial color update when the page loads
-    updateSelectColor();
-
-    // Update color when the selection changes
-    selectInput.addEventListener("change", updateSelectColor);
 });
+//Select Input Color Change START
 
 //GSAP Fade Slide Bottom START
 // Register the ScrollTrigger plugin
