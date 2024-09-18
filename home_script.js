@@ -271,7 +271,7 @@ function initSwiper() {
     freeMode: false,
     navigation: {
         nextEl: ".arrow-left",
-        prevEl: ".arrow-right",zzz
+        prevEl: ".arrow-right",
       },
     // Breakpoints for responsiveness
     breakpoints: {
