@@ -270,8 +270,8 @@ function initSwiper() {
     centeredSlides: false,
     freeMode: false,
     navigation: {
-        nextEl: ".arrow-left",
-        prevEl: ".arrow-right",
+        nextEl: ".arrow-right",
+        prevEl: ".arrow-left",
       },
     // Breakpoints for responsiveness
     breakpoints: {
